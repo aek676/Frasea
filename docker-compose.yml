@@ -1,36 +1,32 @@
 services:
 
   mongo:
-    image: mongo:6.0 # Especificamos una versión estable
+    image: mongo:6.0
     container_name: mongodb_container
     restart: always
     ports:
-      - "27017:27017" # Mapea el puerto de MongoDB a tu máquina local
+      - "27017:27017"
     environment:
       MONGO_INITDB_ROOT_USERNAME: root
       MONGO_INITDB_ROOT_PASSWORD: example
-      MONGO_INITDB_DATABASE: Frasea # <-- ¡IMPORTANTE! Esto asegura que la DB 'Frase' exista.
+      MONGO_INITDB_DATABASE: frasea
     volumes:
       - mongodb_data:/data/db
-      - ./mongo-init:/docker-entrypoint-initdb.d
-    networks:
-      - frasea-network
+      - ./mongo-init/init-db.js:/docker-entrypoint-initdb.d/init-db.js:ro
 
   mongo-express:
     image: mongo-express
     container_name: mongo_express_container
     restart: always
     ports:
-      - "8081:8081" # Accede a Mongo Express en http://localhost:8081
+      - "8081:8081"
     environment:
       ME_CONFIG_MONGODB_ADMINUSERNAME: root
       ME_CONFIG_MONGODB_ADMINPASSWORD: example
       ME_CONFIG_MONGODB_URL: mongodb://root:example@mongo:27017/
-      ME_CONFIG_BASICAUTH: false # Puedes cambiar esto a true si quieres seguridad básica
+      ME_CONFIG_BASICAUTH: false
     depends_on:
-      - mongo # Asegura que MongoDB se inicie antes que Mongo Express
-    networks:
-      - frasea-network
+      - mongo
 
   frasea-app:
     build:
@@ -39,14 +35,12 @@ services:
     container_name: frasea_app_container
     restart: always
     ports:
-      - "3000:3000" # Accede a tu aplicación en http://localhost:3000
+      - "3000:3000"
     environment:
       - NODE_ENV=production
       - MONGODB_URI=mongodb://root:example@mongo:27017/Frasea?authSource=admin
     depends_on:
-      - mongo # Asegura que MongoDB se inicie antes que la aplicación
-    networks:
-      - frasea-network
+      - mongo
 
 volumes:
-  mongodb_data: # Define el volumen para la persistencia de datos de MongoDB
+  mongodb_data:

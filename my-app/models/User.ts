@@ -1,28 +1,31 @@
-import mongoose from 'mongoose';
+import { Schema, model, models } from "mongoose";
+import type { Document, Model } from "mongoose";
+import { translationHistorySchema } from "./TranslationHistory";
 
-// Definición del tipo para la historia de traducciones
-export interface ITranslationHistory {
-    originalText: string;
-    translatedText: string;
-    sourceLanguage: string;
-    targetLanguage: string;
-    timestamp: Date;
+export interface TranslationHistory {
+  originaltext: string;
+  translatedtext: string;
+  sourcelanguage: string;
+  targetlanguage: string;
 }
 
-// Definición del tipo para el usuario
-export interface IUser {
-    _id: mongoose.Types.ObjectId;
-    username: string;
-    password: string;
-    translationHistory: ITranslationHistory[];
-    createdAt: Date;
-    updatedAt: Date;
+export interface UserDocument extends Document {
+  userName: string;
+  email: string;
+  passwordHash: string;
+  translationHistory: TranslationHistory[];
 }
 
-// Definición del modelo
-export type UserModelType = mongoose.Model<IUser>;
+const userSchema = new Schema(
+  {
+    userName: { type: String, required: true },
+    email: { type: String, required: true, unique: true },
+    passwordHash: { type: String, required: true },
+    translationHistory: [translationHistorySchema],
+  },
+  { timestamps: true },
+);
 
-// Importamos el modelo desde el archivo JS
-import User from './User';
-
-export default User as UserModelType;
+export const User =
+  (models.User as Model<UserDocument>) ||
+  model<UserDocument>("User", userSchema);

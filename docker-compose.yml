@@ -50,7 +50,3 @@ services:
 
 volumes:
   mongodb_data: # Define el volumen para la persistencia de datos de MongoDB
-
-networks:
-  frasea-network:
-    driver: bridge

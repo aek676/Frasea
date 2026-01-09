@@ -2,6 +2,8 @@ import { serverEnv } from '@/env';
 import { parse } from 'cookie';
 import jwt from 'jsonwebtoken';
 
+export const COOKIE_NAME = 'auth_token';
+
 export type JwtPayload = {
   userId: string;
   username: string;

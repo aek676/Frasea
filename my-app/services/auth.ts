@@ -1,11 +1,12 @@
+"use server"
+
 import { serverEnv } from '@/env';
 import { dbConnect } from '@/lib/mongoose';
 import { User } from '@/models/User';
+import { COOKIE_NAME } from '@/utils/jwt';
 import { compare, hash } from 'bcryptjs';
 import jwt, { Secret, SignOptions } from 'jsonwebtoken';
 import { cookies } from 'next/headers';
-
-export const COOKIE_NAME = 'auth_token';
 
 export async function login(username: string, password: string) {
   await dbConnect();
@@ -55,4 +56,17 @@ export async function login(username: string, password: string) {
   });
 
   return { success: true };
+}
+
+export async function logout() {
+  try {
+    const cookieStore = await cookies();
+    if (cookieStore.get(COOKIE_NAME)) {
+      cookieStore.delete({ name: COOKIE_NAME, path: '/' });
+    }
+    return { success: true };
+  } catch (err) {
+    console.error('Failed to delete cookie', err);
+    return { success: false, error: 'Failed to delete cookie' };
+  }
 }

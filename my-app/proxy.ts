@@ -1,7 +1,6 @@
 import type { NextRequest } from 'next/server';
 import { NextResponse } from 'next/server';
-import { COOKIE_NAME } from './services/auth';
-import { parseAuthCookie, verifyJwt } from './utils/jwt';
+import { COOKIE_NAME, parseAuthCookie, verifyJwt } from './utils/jwt';
 
 export async function proxy(request: NextRequest) {
   const cookieHeader = request.headers.get('cookie') ?? undefined;

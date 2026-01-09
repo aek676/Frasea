@@ -1,8 +1,9 @@
-import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
+import { NextResponse } from 'next/server';
+import { COOKIE_NAME } from './services/auth';
 import { parseAuthCookie, verifyJwt } from './utils/jwt';
 
-export async function middleware(request: NextRequest) {
+export async function proxy(request: NextRequest) {
   const cookieHeader = request.headers.get('cookie') ?? undefined;
   const token = parseAuthCookie(cookieHeader);
 
@@ -14,12 +15,12 @@ export async function middleware(request: NextRequest) {
     }
 
     const payload = verifyJwt(token);
+
     if (!payload) {
       const response = NextResponse.redirect(new URL('/login', request.url));
-      response.cookies.delete('authToken');
+      response.cookies.delete(COOKIE_NAME);
       return response;
     }
-
   } else {
     if (token) {
       const payload = verifyJwt(token);

@@ -9,13 +9,13 @@ export const COOKIE_NAME = 'auth_token';
 
 export async function login(username: string, password: string) {
   await dbConnect();
-  let user = await User.findOne({ userName: username });
+  let user = await User.findOne({ username });
 
   if (!user) {
-    const hashedPassword = await hash(password, 10);
+    const passwordHash = await hash(password, 10);
     user = await User.create({
-      userName: username,
-      passwordHash: hashedPassword,
+      username,
+      passwordHash,
     });
   }
 
@@ -34,14 +34,14 @@ export async function login(username: string, password: string) {
     };
   }
 
-  const expiresInEnv = serverEnv.env.JWT_EXPIRES_IN;
+  const expiresInSeconds = parseInt(serverEnv.env.JWT_EXPIRES_IN, 10);
 
   const signOptions: SignOptions = {
-    expiresIn: expiresInEnv as SignOptions['expiresIn'],
+    expiresIn: expiresInSeconds,
   };
 
   const token = jwt.sign(
-    { userId: user.id, username: user.userName },
+    { userId: user.id, username: user.username },
     serverEnv.env.JWT_SECRET as Secret,
     signOptions
   );
@@ -51,7 +51,7 @@ export async function login(username: string, password: string) {
     sameSite: 'lax',
     secure: process.env.NODE_ENV === 'production',
     path: '/',
-    maxAge: Number(serverEnv.env.JWT_EXPIRES_IN),
+    maxAge: expiresInSeconds,
   });
 
   return { success: true };

@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
-import dbConnect from "@/lib/mongoose";
-import User from "@/models/User";
+import { dbConnect } from "@/lib/mongoose";
+import { User } from "@/models/User";
+import { compare } from 'bcryptjs';
 
 export async function POST(request: Request) {
   try {
@@ -33,7 +34,7 @@ export async function POST(request: Request) {
       );
     }
 
-    const isPasswordValid = existingUser.password === password; // Simulación de validación de contraseña
+    const isPasswordValid = await compare(password, existingUser.passwordHash);
 
     if (!isPasswordValid) {
       return NextResponse.json(

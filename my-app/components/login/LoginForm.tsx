@@ -18,8 +18,6 @@ const LoginForm: React.FC<LoginFormProps> = () => {
   const [state, action, isPending] = useActionState(loginAction, null);
 
   function onSubmit(data: z.infer<typeof LoginSchema>) {
-    console.log('Login data submitted:', data);
-
     const formData = new FormData();
 
     Object.entries(data).forEach(([key, value]) =>

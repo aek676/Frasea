@@ -6,14 +6,14 @@ import {
 } from './TranslationHistory';
 
 export interface UserDocument extends Document {
-  userName: string;
+  username: string;
   passwordHash: string;
   translationHistory: TranslationHistoryDocument[];
 }
 
 const userSchema = new Schema(
   {
-    userName: { type: String, required: true },
+    username: { type: String, required: true, unique: true },
     passwordHash: { type: String, required: true },
     translationHistory: [translationHistorySchema],
   },

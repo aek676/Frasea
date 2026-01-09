@@ -1,10 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
-import connectMongo from '@/lib/mongoose';
-import User from '@/models/User';
+import { dbConnect } from '@/lib/mongoose';
+import { User } from '@/models/User';
 
 export async function GET(request: NextRequest) {
     try {
-        await connectMongo();
+        await dbConnect();
 
         // Obtener el username de los parámetros de búsqueda
         const { searchParams } = new URL(request.url);

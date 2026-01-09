@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
-import dbConnect from "@/lib/mongoose";
-import User from "@/models/User";
+import { dbConnect } from "@/lib/mongoose";
+import { User } from "@/models/User";
+import { hash } from 'bcryptjs';
 
 export async function POST(request: Request) {
     try {
@@ -37,9 +38,10 @@ export async function POST(request: Request) {
         }
 
         // Crear nuevo usuario
+        const hashedPassword = await hash(password, 10);
         const newUser = new User({
             username,
-            password: password, // Aquí deberías guardar hashedPassword en lugar de password
+            passwordHash: hashedPassword,
         });
 
         await newUser.save();

@@ -1,4 +1,4 @@
-db = db.getSiblingDB("Frasea");
+db = db.getSiblingDB("frasea");
 
 db.createCollection("users");
 

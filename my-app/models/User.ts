@@ -1,31 +1,25 @@
-import { Schema, model, models } from "mongoose";
-import type { Document, Model } from "mongoose";
-import { translationHistorySchema } from "./TranslationHistory";
-
-export interface TranslationHistory {
-  originaltext: string;
-  translatedtext: string;
-  sourcelanguage: string;
-  targetlanguage: string;
-}
+import type { Document, Model } from 'mongoose';
+import { Schema, model, models } from 'mongoose';
+import {
+  TranslationHistoryDocument,
+  translationHistorySchema,
+} from './TranslationHistory';
 
 export interface UserDocument extends Document {
   userName: string;
-  email: string;
   passwordHash: string;
-  translationHistory: TranslationHistory[];
+  translationHistory: TranslationHistoryDocument[];
 }
 
 const userSchema = new Schema(
   {
     userName: { type: String, required: true },
-    email: { type: String, required: true, unique: true },
     passwordHash: { type: String, required: true },
     translationHistory: [translationHistorySchema],
   },
-  { timestamps: true },
+  { timestamps: true }
 );
 
 export const User =
   (models.User as Model<UserDocument>) ||
-  model<UserDocument>("User", userSchema);
+  model<UserDocument>('User', userSchema);

@@ -2,8 +2,9 @@
 
 import { LoginSchema } from "@/schemas/login.schema";
 import { login } from "@/services/auth";
+import { redirect } from "next/navigation";
 
-export async function loginAction(prevState: any, formData: FormData) {
+export async function loginAction(_prevState: any, formData: FormData) {
   const validatedFieldsLogin = LoginSchema.safeParse(
     Object.fromEntries(formData.entries())
   );
@@ -26,6 +27,6 @@ export async function loginAction(prevState: any, formData: FormData) {
     }
   }
 
-  return { message: "Login sucessfull" }
+  redirect("/translator");
 }
 

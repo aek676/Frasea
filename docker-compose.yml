@@ -1,5 +1,4 @@
 services:
-
   mongo:
     image: mongo:6.0
     container_name: mongodb_container
@@ -27,20 +26,21 @@ services:
       ME_CONFIG_BASICAUTH: false
     depends_on:
       - mongo
-
-  frasea-app:
-    build:
-      context: ./my-app
-      dockerfile: Dockerfile
-    container_name: frasea_app_container
-    restart: always
-    ports:
-      - "3000:3000"
-    environment:
-      - NODE_ENV=production
-      - MONGODB_URI=mongodb://root:example@mongo:27017/Frasea?authSource=admin
-    depends_on:
-      - mongo
+  #
+  # frasea-app:
+  #   build:
+  #     context: ./my-app
+  #     dockerfile: Dockerfile
+  #   container_name: frasea_app_container
+  #   restart: always
+  #   ports:
+  #     - "3000:3000"
+  #   environment:
+  #     - NODE_ENV=production
+  #     - MONGODB_URI=mongodb://root:example@mongo:27017/Frasea?authSource=admin
+  #   depends_on:
+  #     - mongo
+  #
 
 volumes:
   mongodb_data:

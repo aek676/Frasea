@@ -6,6 +6,8 @@ export interface TranslationHistoryDocument extends Document {
   translatedtext: string;
   sourcelanguage: string;
   targetlanguage: string;
+  createAt: Date;
+  updatedAt: Date;
 }
 
 export const translationHistorySchema = new Schema(

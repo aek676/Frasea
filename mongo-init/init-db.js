@@ -4,7 +4,7 @@ db.createCollection("users");
 
 db.users.insertOne({
   username: "testuser",
-  password: "123456",
+  passwordHash: "123456",
   createdAt: new Date(),
   updatedAt: new Date(),
   translationHistory: [

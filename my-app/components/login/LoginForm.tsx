@@ -2,13 +2,14 @@
 
 import { LoginSchema } from '@/schemas/login.schema';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { startTransition, useActionState } from 'react';
+import { startTransition, useActionState, useState } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import * as z from 'zod';
 import { Button } from '../ui/button';
 import { Field, FieldError, FieldGroup, FieldLabel } from '../ui/field';
 import { Input } from '../ui/input';
 import { loginAction } from './action';
+import { EyeOff, Eye } from 'lucide-react';
 
 interface LoginFormProps {
   onSubmit?: (username: string, password: string) => void;
@@ -16,6 +17,7 @@ interface LoginFormProps {
 
 const LoginForm: React.FC<LoginFormProps> = () => {
   const [state, action, isPending] = useActionState(loginAction, null);
+  const [showPassword, setShowPassword] = useState(false);
 
   function onSubmit(data: z.infer<typeof LoginSchema>) {
     const formData = new FormData();
@@ -73,13 +75,32 @@ const LoginForm: React.FC<LoginFormProps> = () => {
             render={({ field, fieldState }) => (
               <Field data-invald={fieldState.invalid}>
                 <FieldLabel htmlFor="form-password">Password</FieldLabel>
-                <Input
-                  {...field}
-                  id="form-password"
-                  aria-invalid={fieldState.invalid}
-                  placeholder="Password"
-                  autoComplete="password"
-                />
+                <div className="relative">
+                  <Input
+                    {...field}
+                    id="form-password"
+                    aria-invalid={fieldState.invalid}
+                    type={showPassword ? 'text' : 'password'}
+                    placeholder="Password"
+                    autoComplete="password"
+                  />
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
+                    onClick={() => setShowPassword(!showPassword)}
+                  >
+                    {showPassword ? (
+                      <EyeOff className="h-4 w-4 text-muted-foreground" />
+                    ) : (
+                      <Eye className="h-4 w-4 text-muted-foreground" />
+                    )}
+                    <span className="sr-only">
+                      {showPassword ? "Ocultar contraseña" : "Mostrar contraseña"}
+                    </span>
+                  </Button>
+                </div>
                 {fieldState.invalid && (
                   <FieldError errors={[fieldState.error]} />
                 )}

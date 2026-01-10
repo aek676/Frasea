@@ -1,3 +1,3 @@
 pub async fn root() -> &'static str {
-    "Hello, World!"
+    "Welcome to the Scrap Dictionary API!"
 }

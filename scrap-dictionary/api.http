@@ -1,14 +1,10 @@
 ### GET root
 
-GET http://localhost:3030/ HTTP/1.1
+GET http://localhost:3030/es/en/hola HTTP/1.1
 Accept: application/json
 
 
-### POST create user
+### GET health
 
-POST http://localhost:3030/users HTTP/1.1
-Content-Type: application/json
-
-{
-  "username": "alice"
-}
+GET http://localhost:3030/health HTTP/1.1
+Accept: application/json

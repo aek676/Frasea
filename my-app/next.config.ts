@@ -1,15 +1,16 @@
 import type { NextConfig } from "next";
+import { env } from "./env/server";
 
 const nextConfig: NextConfig = {
-  output: 'standalone',
+  output: "standalone",
   async rewrites() {
     return [
       {
-        source: '/scrapDictionary/:path*',
-        destination: 'http://localhost:3030/:path*'
-      }
-    ]
-  }
+        source: "/scrapDictionary/:source/:target/:word",
+        destination: `${env.SCRAP_DICTIONARY_URL}/:source/:target/:word`,
+      },
+    ];
+  },
 };
 
 export default nextConfig;

@@ -12,6 +12,7 @@ import { useDebounce } from '@uidotdev/usehooks';
 import PalabrasSeccion from './PalabrasSeccion';
 import { useRouter } from 'next/navigation';
 import LogoutForm from './logout/LogoutForm';
+import { getCurrentUser } from '@/utils/clientAuth';
 
 interface Language {
   code: string;
@@ -50,27 +51,27 @@ export default function TranslatorForm() {
   // Function to save to history
   const saveToHistory = async (originalText: string, translatedText: string, sourceLang: string, targetLang: string) => {
     try {
-      const username = localStorage.getItem('username');
-      if (!username) {
+      const user = await getCurrentUser();
+      if (!user) {
         console.log('User not authenticated, will not save to history');
+        toast.error('Please log in to save translations to history');
         return;
       }
 
       console.log('Sending translation to history:', {
-        username,
+        userId: user.userId,
         originalText,
         translatedText,
         sourceLanguage: sourceLang,
         targetLanguage: targetLang
       });
 
-      const response = await fetch('/api/historial', {
+      const response = await fetch('/api/user/history', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          username,
           originalText,
           translatedText,
           sourceLanguage: sourceLang,
@@ -85,7 +86,7 @@ export default function TranslatorForm() {
       } else {
         const error = await response.json();
         console.error('Error saving to history:', error);
-        toast.error('Error saving to history');
+        toast.error(error.error || 'Error saving to history');
       }
     } catch (error) {
       console.error('Error saving to history:', error);

@@ -8,8 +8,8 @@ import {
 export interface UserDocument extends Document {
   username: string;
   passwordHash: string;
-  createAt: Date;
-  updateAt: Date;
+  createdAt: Date;
+  updatedAt: Date;
   translationHistory: TranslationHistoryDocument[];
 }
 

@@ -7,6 +7,7 @@ import { COOKIE_NAME } from '@/utils/jwt';
 import { compare, hash } from 'bcryptjs';
 import jwt, { Secret, SignOptions } from 'jsonwebtoken';
 import { cookies } from 'next/headers';
+import { getAuthenticatedUser } from '@/utils/serverAuthUtils';
 
 export async function login(username: string, password: string) {
   await dbConnect();
@@ -69,4 +70,8 @@ export async function logout() {
     console.error('Failed to delete cookie', err);
     return { success: false, error: 'Failed to delete cookie' };
   }
+}
+
+export async function getCurrentUserServer() {
+  return await getAuthenticatedUser();
 }

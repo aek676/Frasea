@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { getCurrentUserServer } from '@/services/auth';
 
 interface ProtectedRouteProps {
     children: React.ReactNode;
@@ -12,17 +13,24 @@ export default function ProtectedRoute({ children }: ProtectedRouteProps) {
     const router = useRouter();
 
     useEffect(() => {
-        // Check if user is authenticated
-        const username = localStorage.getItem('username');
+        const checkAuth = async () => {
+            try {
+                const authResult = await getCurrentUserServer();
+                
+                if ('error' in authResult) {
+                    router.push('/login');
+                    setIsAuthenticated(false);
+                } else {
+                    setIsAuthenticated(true);
+                }
+            } catch (error) {
+                console.error('Auth check failed:', error);
+                router.push('/login');
+                setIsAuthenticated(false);
+            }
+        };
 
-        if (!username) {
-            // User is not authenticated, redirect to login
-            router.push('/login');
-            setIsAuthenticated(false);
-        } else {
-            // User is authenticated
-            setIsAuthenticated(true);
-        }
+        checkAuth();
     }, [router]);
 
     // Show loading while checking authentication

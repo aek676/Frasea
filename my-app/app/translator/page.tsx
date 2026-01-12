@@ -1,7 +1,7 @@
-import TranslatorForm from "@/components/TranslatorForm";
+import TranslatorPage from "@/components/TranslatorPage";
 
 export default function Page() {
   return (
-    <TranslatorForm />
+    <TranslatorPage />
   );
 };

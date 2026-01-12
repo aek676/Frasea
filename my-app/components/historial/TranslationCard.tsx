@@ -8,7 +8,7 @@ interface Translation {
   translatedtext: string;
   sourcelanguage: string;
   targetlanguage: string;
-  createAt: string;
+  createdAt: string;
   updatedAt: string;
 }
 
@@ -39,7 +39,7 @@ export function TranslationCard({ translation }: TranslationCardProps) {
               </span>
             </div>
             <span className="text-sm text-gray-500">
-              {formatDate(translation.createAt)}
+              {formatDate(translation.createdAt)}
             </span>
           </div>
         </div>

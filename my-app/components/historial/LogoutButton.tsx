@@ -3,21 +3,20 @@
 import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
+import { logout } from "@/services/auth";
 
 export function LogoutButton() {
   const router = useRouter();
 
   const handleLogout = async () => {
     try {
-      const response = await fetch("/api/logout", {
-        method: "POST",
-      });
+      const result = await logout();
 
-      if (response.ok) {
+      if (result.success) {
         toast.success("Session closed successfully");
         router.push("/login");
       } else {
-        toast.error("Failed to logout");
+        toast.error(result.error || "Failed to logout");
       }
     } catch (error) {
       toast.error("Failed to logout");

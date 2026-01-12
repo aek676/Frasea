@@ -6,7 +6,7 @@ export interface TranslationHistoryDocument extends Document {
   translatedtext: string;
   sourcelanguage: string;
   targetlanguage: string;
-  createAt: Date;
+  createdAt: Date;
   updatedAt: Date;
 }
 

@@ -1,18 +1,18 @@
-"use client";
+'use client';
 
-import React, { useState, useEffect, useRef } from "react";
-import { ComboBox } from "./ComboBox";
-import { Textarea } from "./ui/textarea";
-import { Button } from "./ui/button";
-import Link from "next/link";
-import useSWR from "swr";
-import { fetcher } from "@/lib/fetcher";
-import { toast } from "sonner";
-import { useDebounce } from "@uidotdev/usehooks";
-import PalabrasSeccion from "./PalabrasSeccion";
-import { useRouter } from "next/navigation";
-import LogoutForm from "./logout/LogoutForm";
-import { saveTranslationToHistory } from "@/services/userHistory";
+import { fetcher } from '@/lib/fetcher';
+import { saveTranslationToHistory } from '@/services/userHistory';
+import { useDebounce } from '@uidotdev/usehooks';
+import Link from 'next/link';
+import { useRouter } from 'next/navigation';
+import { useCallback, useEffect, useRef, useState } from 'react';
+import { toast } from 'sonner';
+import useSWR from 'swr';
+import { ComboBox } from './ComboBox';
+import LogoutForm from './logout/LogoutForm';
+import PalabrasSeccion from './PalabrasSeccion';
+import { Button } from './ui/button';
+import { Textarea } from './ui/textarea';
 
 interface Language {
   code: string;
@@ -23,11 +23,11 @@ interface LanguagesResponse {
   languages: Language[];
 }
 
-export default function TranslatorForm() {
-  const [sourceLanguage, setSourceLanguage] = useState("");
-  const [targetLanguage, setTargetLanguage] = useState("");
-  const [sourceText, setSourceText] = useState("");
-  const [translatedText, setTranslatedText] = useState("");
+export default function TranslationForm() {
+  const [sourceLanguage, setSourceLanguage] = useState('');
+  const [targetLanguage, setTargetLanguage] = useState('');
+  const [sourceText, setSourceText] = useState('');
+  const [translatedText, setTranslatedText] = useState('');
   const [isTranslating, setIsTranslating] = useState(false);
   const debounceTerm = useDebounce(sourceText, 600);
   const router = useRouter();
@@ -37,64 +37,67 @@ export default function TranslatorForm() {
   const saveTimerRef = useRef<NodeJS.Timeout | null>(null);
 
   const { data, error, isLoading } = useSWR<LanguagesResponse>(
-    "/api/languages",
-    fetcher,
+    '/api/languages',
+    fetcher
   );
 
   // Mostrar el mensaje de error cuando hay un problema con la carga de datos
   useEffect(() => {
     if (error) {
-      toast.error("No available languages found");
+      toast.error('No available languages found');
     }
   }, [error]);
 
   // Use an empty array if data is not available yet
   const languages = data?.languages || [];
 
-  // Function to save to history
-  const saveToHistory = async (
-    originalText: string,
-    translatedText: string,
-    sourceLang: string,
-    targetLang: string,
-  ) => {
-    try {
-      console.log("Saving translation to history:", {
-        originalText,
-        translatedText,
-        sourceLanguage: sourceLang,
-        targetLanguage: targetLang,
-      });
+  // Function to save to history using server action
+  const saveToHistory = useCallback(
+    async (
+      originalText: string,
+      translatedText: string,
+      sourceLang: string,
+      targetLang: string
+    ) => {
+      try {
+        console.log('Saving translation to history:', {
+          originalText,
+          translatedText,
+          sourceLanguage: sourceLang,
+          targetLanguage: targetLang,
+        });
 
-      // Usar server action que maneja autenticación internamente
-      const result = await saveTranslationToHistory({
-        originaltext: originalText,
-        translatedtext: translatedText,
-        sourcelanguage: sourceLang,
-        targetlanguage: targetLang,
-      });
+        // Usar server action que maneja autenticación internamente
+        const result = await saveTranslationToHistory({
+          originaltext: originalText,
+          translatedtext: translatedText,
+          sourcelanguage: sourceLang,
+          targetlanguage: targetLang,
+        });
 
-      if (result.success) {
-        console.log("Translation saved to history successfully:", result);
-        toast.success("Translation saved to history");
-      } else {
-        // Si es error de autenticación, redirigir
-        if (
-          result.error === "Unauthorized" ||
-          result.error === "Invalid user"
-        ) {
-          toast.error("Session expired, please log in again");
-          router.push("/login");
+        if (result.success) {
+          console.log('Translation saved to history successfully:', result);
+          toast.success('Translation saved to history');
         } else {
-          console.error("Error saving to history:", result.error);
-          toast.error(result.error || "Error saving to history");
+          // Si es error de autenticación, redirigir
+          if (
+            result.error === 'Unauthorized' ||
+            result.error === 'Invalid user'
+          ) {
+            toast.error('Session expired, please log in again');
+            router.push('/login');
+          } else {
+            console.error('Error saving to history:', result.error);
+            toast.error(result.error || 'Error saving to history');
+          }
         }
+      } catch (error) {
+        console.error('Error saving to history:', error);
+        toast.error('Error saving to history');
       }
-    } catch (error) {
-      console.error("Error saving to history:", error);
-      toast.error("Error saving to history");
-    }
-  };
+    },
+    [router]
+  );
 
   // Function to swap languages
   const swapLanguages = () => {
@@ -107,18 +110,11 @@ export default function TranslatorForm() {
     setTranslatedText(tempSourceText);
   };
 
-  // Function to handle logout
-  const handleLogout = () => {
-    localStorage.removeItem("username");
-    toast.success("Session closed successfully");
-    router.push("/login");
-  };
-
   // Actualizamos las palabras cuando cambia el texto fuente
   useEffect(() => {
     if (sourceText.trim()) {
       setPalabrasSource(
-        sourceText.split(" ").filter((word) => word.trim() !== ""),
+        sourceText.split(' ').filter((word) => word.trim() !== '')
       );
     } else {
       setPalabrasSource([]);
@@ -129,7 +125,7 @@ export default function TranslatorForm() {
     const handleTranslate = async () => {
       // If there's no input text, clear the translation and exit
       if (!debounceTerm.trim()) {
-        setTranslatedText("");
+        setTranslatedText('');
         setIsTranslating(false);
         return;
       }
@@ -140,13 +136,13 @@ export default function TranslatorForm() {
       setIsTranslating(true);
       try {
         console.log(
-          `Traduciendo de ${sourceLanguage} a ${targetLanguage}: "${debounceTerm}"`,
+          `Traduciendo de ${sourceLanguage} a ${targetLanguage}: "${debounceTerm}"`
         );
 
-        const response = await fetch("/api/translate", {
-          method: "POST",
+        const response = await fetch('/api/translate', {
+          method: 'POST',
           headers: {
-            "Content-Type": "application/json",
+            'Content-Type': 'application/json',
           },
           body: JSON.stringify({
             text: debounceTerm,
@@ -162,13 +158,14 @@ export default function TranslatorForm() {
         const result = await response.json();
 
         setTranslatedText(result.translatedText);
+        // Only show notification if there's translated text
         if (result.translatedText && result.translatedText.trim()) {
-          toast.success("Translation completed");
+          toast.success('Translation completed');
         }
       } catch (error) {
-        console.error("Translation error:", error);
-        toast.error("Error translating text. Please try again.");
-        setTranslatedText("Translation error");
+        console.error('Translation error:', error);
+        toast.error('Error translating text. Please try again.');
+        setTranslatedText('Translation error');
       } finally {
         setIsTranslating(false);
       }
@@ -188,34 +185,34 @@ export default function TranslatorForm() {
     // If there's translated text and selected languages, set up the timer
     if (
       translatedText &&
-      translatedText !== "Translation error" &&
+      translatedText !== 'Translation error' &&
       sourceText.trim() &&
       sourceLanguage &&
       targetLanguage
     ) {
       console.log(
-        "Configurando timer para guardar en historial en 3 segundos...",
+        'Configurando timer para guardar en historial en 3 segundos...',
         {
-          sourceText: sourceText.substring(0, 50) + "...",
-          translatedText: translatedText.substring(0, 50) + "...",
+          sourceText: sourceText.substring(0, 50) + '...',
+          translatedText: translatedText.substring(0, 50) + '...',
           sourceLanguage,
           targetLanguage,
-        },
+        }
       );
 
       saveTimerRef.current = setTimeout(() => {
-        console.log("Timer completed - Saving translation to history...");
+        console.log('Timer completed - Saving translation to history...');
         saveToHistory(
           sourceText,
           translatedText,
           sourceLanguage,
-          targetLanguage,
+          targetLanguage
         );
       }, 3000); // 3 seconds
     } else {
-      console.log("Timer not set. Conditions:", {
+      console.log('Timer not set. Conditions:', {
         hasTranslatedText: !!translatedText,
-        isNotError: translatedText !== "Translation error",
+        isNotError: translatedText !== 'Translation error',
         hasSourceText: !!sourceText.trim(),
         hasSourceLanguage: !!sourceLanguage,
         hasTargetLanguage: !!targetLanguage,
@@ -229,7 +226,13 @@ export default function TranslatorForm() {
         saveTimerRef.current = null;
       }
     };
-  }, [translatedText, sourceText, sourceLanguage, targetLanguage]);
+  }, [
+    translatedText,
+    sourceText,
+    sourceLanguage,
+    targetLanguage,
+    saveToHistory,
+  ]);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-50">
@@ -239,6 +242,10 @@ export default function TranslatorForm() {
           <h1 className="text-4xl md:text-5xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent mb-4">
             Frasea Translator
           </h1>
+          <p className="text-gray-600 mb-6">
+            Translate text between multiple languages instantly
+          </p>
+
           {/* Buttons */}
           <div className="absolute top-0 right-0 flex gap-2">
             <LogoutForm />
@@ -278,9 +285,9 @@ export default function TranslatorForm() {
                 </label>
                 <ComboBox
                   items={languages}
-                  placeholder={isLoading ? "Loading..." : "Select a language"}
+                  placeholder={isLoading ? 'Loading...' : 'Select a language'}
                   searchPlaceholder="Search language..."
-                  emptyMessage={isLoading ? "Loading..." : "Not found"}
+                  emptyMessage={isLoading ? 'Loading...' : 'Not found'}
                   value={sourceLanguage}
                   onChange={setSourceLanguage}
                   className="w-full"
@@ -317,9 +324,9 @@ export default function TranslatorForm() {
                 </label>
                 <ComboBox
                   items={languages}
-                  placeholder={isLoading ? "Loading..." : "Select language"}
+                  placeholder={isLoading ? 'Loading...' : 'Select language'}
                   searchPlaceholder="Search language..."
-                  emptyMessage={isLoading ? "Loading..." : "Not found"}
+                  emptyMessage={isLoading ? 'Loading...' : 'Not found'}
                   value={targetLanguage}
                   onChange={setTargetLanguage}
                   className="w-full"
@@ -370,8 +377,8 @@ export default function TranslatorForm() {
                 readOnly
                 placeholder={
                   isTranslating
-                    ? "Translating..."
-                    : "The translation will appear here"
+                    ? 'Translating...'
+                    : 'The translation will appear here'
                 }
                 className="min-h-[200px] border-0 bg-transparent resize-none text-base leading-relaxed cursor-default"
               />
@@ -386,25 +393,25 @@ export default function TranslatorForm() {
                   {sourceLanguage && targetLanguage && (
                     <span>
                       {languages.find(
-                        (l: Language) => l.code === sourceLanguage,
-                      )?.name || sourceLanguage}{" "}
-                      →{" "}
+                        (l: Language) => l.code === sourceLanguage
+                      )?.name || sourceLanguage}{' '}
+                      →{' '}
                       {languages.find(
-                        (l: Language) => l.code === targetLanguage,
+                        (l: Language) => l.code === targetLanguage
                       )?.name || targetLanguage}
                     </span>
                   )}
                 </div>
                 <div className="flex items-center gap-2">
                   {/* Temporary manual save button for testing */}
-                  {translatedText && translatedText !== "Translation error" && (
+                  {translatedText && translatedText !== 'Translation error' && (
                     <Button
                       onClick={() =>
                         saveToHistory(
                           sourceText,
                           translatedText,
                           sourceLanguage,
-                          targetLanguage,
+                          targetLanguage
                         )
                       }
                       variant="outline"

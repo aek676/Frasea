@@ -1,1 +1,1 @@
-export * as serverEnv from "./server";
+export * as serverEnv from './server';

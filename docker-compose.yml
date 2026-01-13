@@ -32,6 +32,7 @@ services:
       context: ./my-app
       args:
         SKIP_ENV_VALIDATION: 1
+        SCRAP_DICTIONARY_URL: scrap-dictionary:3030
       dockerfile: Dockerfile
     container_name: frasea_app_container
     restart: always

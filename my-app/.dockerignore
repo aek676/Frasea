@@ -1,0 +1,34 @@
+# Node / Bun / Next build artifacts
+node_modules
+.next
+.next/static
+.next/standalone
+dist
+build
+coverage
+
+# Environment & secrets
+.env
+.env.* 
+
+# Logs
+npm-debug.log*
+yarn-debug.log*
+pnpm-debug.log*
+*.log
+
+# VCS & editor
+.git
+.gitignore
+.vscode
+.idea
+.DS_Store
+
+# Docker files & compose (not needed in build context)
+Dockerfile
+docker-compose*.yml
+docker-compose*.yaml
+
+# Misc
+*.md
+tests

@@ -11,6 +11,10 @@ WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 
+ARG SKIP_ENV_VALIDATION=0
+
+ENV SKIP_ENV_VALIDATION=${SKIP_ENV_VALIDATION}
+
 RUN bun run build
 
 FROM base AS runner

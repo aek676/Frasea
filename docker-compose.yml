@@ -30,6 +30,8 @@ services:
   frasea-app:
     build:
       context: ./my-app
+      args:
+        SKIP_ENV_VALIDATION: 1
       dockerfile: Dockerfile
     container_name: frasea_app_container
     restart: always
@@ -40,8 +42,25 @@ services:
     environment:
       - NODE_ENV=production
       - MONGODB_URI=mongodb://root:example@mongo:27017/Frasea?authSource=admin
+      - SCRAP_DICTIONARY_URL=scrap-dictionary:3030
     depends_on:
       - mongo
+      - scrap-dictionary
+
+  scrap-dictionary:
+    build:
+      context: ./scrap-dictionary
+      dockerfile: Dockerfile
+    container_name: scrap_dictionary_container
+    restart: always
+    ports:
+      - "3030:3030"
+    healthcheck:
+      test: ["CMD", "curl", "-fS", "http://localhost:3030/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 5s
 
 volumes:
   mongodb_data:

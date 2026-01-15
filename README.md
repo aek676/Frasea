@@ -1,106 +1,96 @@
-# Frasea - Traductor con Historial Descargable en PDF
+# Frasea
 
-Una aplicación web con Next.js que permite traducir texto, guardar un historial de traducciones y exportarlo a PDF, además de extraer frases de ejemplo desde WordReference.
+**Frasea** es una aplicación web (Next.js) que permite traducir texto, guardar un historial de traducciones y obtener frases de ejemplo mediante scraping (microservicio Rust). Está pensada para desarrolladores y usuarios que necesitan guardar y gestionar traducciones rápidas con contexto.
 
-## Características Principales
+---
 
-- **Traductor de Texto**: Traduce texto utilizando la API de Google Translate (@vitalets/google-translate-api).
-- **Historial de Traducciones**: Guarda cada traducción en base de datos y permite visualizarlas en una tabla.
-- **Gestión de Traducciones**: Permite editar y eliminar traducciones guardadas.
-- **Exportación a PDF**: Permite descargar el historial completo de traducciones en formato PDF.
-- **Extracción de Frases**: Busca y extrae frases de ejemplo desde WordReference mediante scraping.
+## ⚡ Características principales
 
-## Estructura del Proyecto
+- Traducción de texto usando `@vitalets/google-translate-api`.
+- Historial de traducciones por usuario (guardado en MongoDB).
+- Guardar/editar/eliminar traducciones desde la UI.
+- Scraper de frases de ejemplo (servicio `scrap-dictionary` en Rust) para obtener ejemplos de uso.
+- Autenticación básica con JWT y cookies HTTP-only.
 
-```
-Frasea/
-├── frontend/        # Aplicación Next.js 
-│   ├── app/         # Carpetas de rutas y componentes (App Router)
-│   ├── pages/       # API Routes y páginas (opcional, si usas Pages Router)
-│   ├── components/  # Componentes reutilizables
-│   ├── lib/         # Utilidades y helpers
-│   ├── public/      # Archivos estáticos
-│   └── styles/      # Estilos globales
-└── scraper/         # Herramientas para extracción de frases desde WordReference
-```
+---
 
-## Funcionalidades Implementadas
+## 🧰 Pila tecnológica
 
-### 🔠 Traductor de texto
-- Input para escribir un texto
-- Selección de idiomas origen y destino
-- Integración con @vitalets/google-translate-api
-- Visualización del resultado de la traducción
+- Frontend / Backend: **Next.js 16** (App Router) + React 19
+- Base de datos: **MongoDB** (imagen `mongo:6.0` en docker-compose)
+- Autenticación: **JWT** (cookie `auth_token`)
+- Scraper: **Rust** (Axum + reqwest + scraper)
+- Contenedores: **Docker** + **Docker Compose**
+- Lenguajes: **TypeScript** (frontend) y **Rust** (scraper)
 
-### 🧾 Historial de traducciones
-- Almacenamiento de traducciones en base de datos MongoDB
-- Visualización en tabla/listado en frontend
-- Funcionalidad para editar traducciones guardadas
-- Funcionalidad para eliminar traducciones
-- Exportación del historial completo a PDF
+---
 
-### 🕷 Scraping de frases desde WordReference
-- Input para buscar una palabra
-- Extracción de frases de ejemplo (inglés + español) desde WordReference
-- Visualización de frases extraídas
-- Opción para seleccionar una frase y traducirla
-- Funcionalidad para guardar directamente al historial
+## 🚀 Arranque rápido (recomendado: Docker)
 
-## Entorno de Desarrollo
-
-### Requisitos Previos
-
-- Node.js (v18 o superior recomendado)
-- npm (v9 o superior)
-- MongoDB (local o en la nube)
-
-### Instalación
+1. Construir y levantar todo con Docker Compose:
 
 ```bash
-# Clonar el repositorio
-git clone [URL_DEL_REPOSITORIO]
-
-# Instalar dependencias 
-cd frontend
-npm install
+docker compose up --build
 ```
 
-### Ejecución en Desarrollo
+2. Accede a:
 
-```bash
-# Iniciar la aplicación Next.js (frontend + backend)
-cd frontend
-npm run dev
-```
+- App Next.js: http://localhost:3000
+- Mongo Express: http://localhost:8081
+- Servicio scrap-dictionary: http://localhost:3030
 
-La aplicación estará disponible en `http://localhost:3000/`
+> Nota: Docker Compose ya monta `my-app/.env.local` y usa en el servicio `MONGODB_URI` con credenciales de ejemplo definidas en `docker-compose.yml`.
 
-## Tecnologías Utilizadas
+> El `Dockerfile` del frontend utiliza **Bun** (`oven/bun`) para construir y ejecutar la aplicación (ver `my-app/Dockerfile`).
 
-- **Frontend y Backend**: Next.js, React, TailwindCSS
-- **Base de Datos**: MongoDB
-- **Traducción**: @vitalets/google-translate-api
-- **Generación PDF**: jsPDF o similar
-- **Scraping**: Axios y Cheerio para extracción de frases desde WordReference
-- **API Routes**: Endpoints de Next.js para la comunicación con la base de datos
+---
 
-## Plan de Desarrollo
+Scripts principales (desde `my-app`):
 
-### Tareas Pendientes
+- `bun run dev` — desarrollo
+- `bun run build` — construir para producción
+- `bun run start` — iniciar producción
+- `bun run lint` — linting
 
-- Migrar el proyecto actual de Angular a Next.js
-- Implementar la interfaz de usuario con Next.js y TailwindCSS
-- Configurar la conexión con MongoDB
-- Crear API Routes para gestionar las traducciones
-- Integrar la API de traducción
-- Desarrollar el scraper para WordReference utilizando Axios y Cheerio
-- Implementar la funcionalidad de exportación a PDF
-- Añadir funcionalidades de edición/eliminación de traducciones
-- Optimizar la interfaz de usuario
-- Mejorar la experiencia móvil
+---
 
-## Web
-[Demo en línea](https://2c61-93-115-135-191.ngrok-free.app)
-## Licencia
+## 🔐 Variables de entorno
 
-Este proyecto está licenciado bajo los términos de la licencia MIT.
+Variables requeridas por el servidor (ver `my-app/.env.example`):
+
+- `MONGODB_URI` — URI para conectar con MongoDB (ejemplo: `mongodb://root:example@mongo:27017/Frasea?authSource=admin`)
+- `JWT_SECRET` — Secreto para firmar tokens JWT
+- `JWT_EXPIRES_IN` — Tiempo de expiración del JWT en segundos (e.g. `3600`)
+- `SCRAP_DICTIONARY_URL` — URL del servicio scrap-dictionary (por defecto `http://localhost:3030`)
+
+---
+
+## 📡 API (endpoints más relevantes)
+
+- POST `/api/translate`
+
+  - Descripción: Traduce texto.
+  - Payload: `{ text: string, from: string, to: string }`
+  - Respuesta: `{ originalText, from, to, translatedText }`
+
+- GET `/api/languages`
+
+  - Descripción: Devuelve lista de idiomas (scrapeada de la doc de Google Translate).
+  - Respuesta: `{ languages: [{ name, code }, ...] }`
+
+- Servicio Rust `scrap-dictionary`:
+  - GET `/translate/:source/:target/:word` — Devuelve traducciones y ejemplos (200 / 404 / 502 según resultado).
+  - GET `/health` — Health check del servicio.
+
+---
+
+## 🗂️ Archivos y carpetas clave
+
+- `my-app/` — Aplicación Next.js (frontend y API)
+- `my-app/.env.example` — Ejemplo de variables de entorno
+- `my-app/Dockerfile` — Dockerfile del frontend
+- `scrap-dictionary/` — Microservicio Rust (scraper)
+- `mongo-init/init-db.js` — Script que inicializa la BD con un usuario y datos de ejemplo
+- `docker-compose.yml` — Orquestación de servicios para desarrollo
+
+---
